@@ -1,0 +1,44 @@
+name: Autograding I/O Tests
+
+on: 
+  push:
+    paths:
+      - 'p2/**'
+      - '.github/workflows/p2-autograding.yml'
+  workflow_dispatch:
+
+jobs:
+  io-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout student code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run I/O tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+
+          cd p2
+
+          count=0
+          for in_file in tests/case*.in; do
+            count=$((count + 1))
+            base="${in_file##*/}"
+            base="${base%.in}"
+            out_file="tests/${base}.out"
+
+            python main.py < "$in_file" | diff -q - "$out_file"
+          done
+
+
+
+
+
